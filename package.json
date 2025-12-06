@@ -1,7 +1,7 @@
 {
   "name": "meeting-bot",
   "version": "1.2.2",
-  "description": "Run meeting bots for Google Meet, Microsoft Teams and Zoom",
+  "description": "Run meeting bots for Google Meet, Microsoft Teams, Zoom and Yandex.Telemost",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

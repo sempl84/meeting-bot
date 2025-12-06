@@ -4,7 +4,7 @@ import { UnsupportedMeetingError, WaitingAtLobbyError } from '../error';
 import { addBotLog } from '../services/botService';
 import { Logger } from 'winston';
 import { LogSubCategory, UnsupportedMeetingCategory, WaitingAtLobbyCategory } from '../types';
-import { GOOGLE_REQUEST_DENIED, MICROSOFT_REQUEST_DENIED, ZOOM_REQUEST_DENIED } from '../constants';
+import { GOOGLE_REQUEST_DENIED, MICROSOFT_REQUEST_DENIED, ZOOM_REQUEST_DENIED, TELEMOST_REQUEST_DENIED } from '../constants';
 
 export class MeetBotBase extends AbstractMeetBot {
   protected page: Page;
@@ -24,10 +24,10 @@ export const handleWaitingAtLobbyError = async ({
   eventId?: string,
   token: string,
   botId?: string,
-  provider: 'google' | 'microsoft' | 'zoom',
+  provider: 'google' | 'microsoft' | 'zoom' | 'telemost',
   error: WaitingAtLobbyError,
 }, logger: Logger) => {
-  const getSubCategory = (provider: 'google' | 'microsoft' | 'zoom', bodytext: string | undefined | null): WaitingAtLobbyCategory['subCategory'] => {
+  const getSubCategory = (provider: 'google' | 'microsoft' | 'zoom' | 'telemost', bodytext: string | undefined | null): WaitingAtLobbyCategory['subCategory'] => {
     switch (provider) {
       case 'google':
         return bodytext?.includes(GOOGLE_REQUEST_DENIED) ? 'UserDeniedRequest' : 'Timeout';
@@ -35,6 +35,8 @@ export const handleWaitingAtLobbyError = async ({
         return bodytext?.includes(MICROSOFT_REQUEST_DENIED) ? 'UserDeniedRequest' : 'Timeout';
       case 'zoom':
         return bodytext?.includes(ZOOM_REQUEST_DENIED) ? 'UserDeniedRequest' : 'Timeout';
+      case 'telemost':
+        return bodytext?.includes(TELEMOST_REQUEST_DENIED) ? 'UserDeniedRequest' : 'Timeout';
       default:
         return 'Timeout';
     }
@@ -66,7 +68,7 @@ export const handleUnsupportedMeetingError = async ({
   eventId?: string,
   token: string,
   botId?: string,
-  provider: 'google' | 'microsoft' | 'zoom',
+  provider: 'google' | 'microsoft' | 'zoom' | 'telemost',
   error: UnsupportedMeetingError,
 }, logger: Logger) => {
   const getSubCategory = (error: UnsupportedMeetingError): null | LogSubCategory<'UnsupportedMeeting'> => {

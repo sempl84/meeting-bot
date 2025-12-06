@@ -13,7 +13,7 @@ export const patchBotStatus = async ({
     eventId?: string,
     token: string,
     botId?: string,
-    provider: 'google' | 'microsoft' | 'zoom',
+    provider: 'google' | 'microsoft' | 'zoom' | 'telemost',
     status: BotStatus[],
 }, logger: Logger) => {
   try {

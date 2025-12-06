@@ -9,7 +9,7 @@ stealthPlugin.enabledEvasions.delete('iframe.contentWindow');
 stealthPlugin.enabledEvasions.delete('media.codecs');
 chromium.use(stealthPlugin);
 
-export type BotType = 'microsoft' | 'google' | 'zoom';
+export type BotType = 'microsoft' | 'google' | 'zoom' | 'telemost';
 
 function attachBrowserErrorHandlers(browser: Browser, context: BrowserContext, page: Page, correlationId: string) {
   const log = getCorrelationIdLog(correlationId);

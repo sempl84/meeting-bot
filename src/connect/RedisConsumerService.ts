@@ -9,6 +9,7 @@ import { encodeFileNameSafebase64 } from '../util/strings';
 import { JoinParams } from '../bots/AbstractMeetBot';
 import { MicrosoftTeamsBot } from '../bots/MicrosoftTeamsBot';
 import { ZoomBot } from '../bots/ZoomBot';
+import { TelemostBot } from '../bots/TelemostBot';
 import config from '../config';
 
 export class RedisConsumerService {
@@ -174,6 +175,11 @@ export class RedisConsumerService {
             const zoomBot = new ZoomBot(logger, correlationId);
             await zoomBot.join(joinParams);
             logger.info('Joined Zoom meeting successfully.', meetingParams.userId, meetingParams.teamId);
+            break;
+          case 'telemost':
+            const telemostBot = new TelemostBot(logger, correlationId);
+            await telemostBot.join(joinParams);
+            logger.info('Joined Telemost meeting successfully.', meetingParams.userId, meetingParams.teamId);
             break;
           default:
             throw new Error(`Unsupported provider: ${meetingParams.provider}`);

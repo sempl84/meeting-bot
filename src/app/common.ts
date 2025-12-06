@@ -15,7 +15,7 @@ export interface MeetingJoinParams {
 }
 
 export interface MeetingJoinRedisParams extends MeetingJoinParams {
-  provider: 'google' | 'microsoft' | 'zoom';
+  provider: 'google' | 'microsoft' | 'zoom' | 'telemost';
 }
 
 const sleep = (ms: number): Promise<void> =>

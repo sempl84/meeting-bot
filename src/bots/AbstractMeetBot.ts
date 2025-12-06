@@ -1,7 +1,7 @@
 import { IUploader } from '../middleware/disk-uploader';
 
 export interface BotLaunchParams {
-  provider: 'google' | 'microsoft' | 'zoom';
+  provider: 'google' | 'microsoft' | 'zoom' | 'telemost';
   url: string;
   name: string;
   teamId: string;

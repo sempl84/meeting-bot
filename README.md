@@ -5,11 +5,11 @@
 [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 
-An open-source automation bot for joining and recording video meetings across multiple platforms including Google Meet, Microsoft Teams, and Zoom. Built with TypeScript, Node.js, and Playwright for reliable browser automation.
+An open-source automation bot for joining and recording video meetings across multiple platforms including Google Meet, Microsoft Teams, Zoom, and Yandex.Telemost. Built with TypeScript, Node.js, and Playwright for reliable browser automation.
 
 ## ✨ Features
 
-- **Multi-Platform Support**: Join meetings on Google Meet, Microsoft Teams, and Zoom
+- **Multi-Platform Support**: Join meetings on Google Meet, Microsoft Teams, Zoom, and Yandex.Telemost
 - **Automated Recording**: Capture meeting recordings with configurable duration limits
 - **Single Job Execution**: Ensures only one meeting is processed at a time across the entire system
 - **Dual Integration Options**: RESTful API endpoints and Redis message queue for flexible integration
@@ -111,6 +111,22 @@ Content-Type: application/json
 {
   "bearerToken": "your-auth-token",
   "url": "https://zoom.us/j/123456789",
+  "name": "Meeting Notetaker",
+  "teamId": "team123",
+  "timezone": "UTC",
+  "userId": "user123",
+  "botId": "UUID"
+}
+```
+
+#### Join a Yandex.Telemost Meeting
+```bash
+POST /telemost/join
+Content-Type: application/json
+
+{
+  "bearerToken": "your-auth-token",
+  "url": "https://telemost.yandex.ru/j/123456789",
   "name": "Meeting Notetaker",
   "teamId": "team123",
   "timezone": "UTC",
@@ -235,7 +251,7 @@ interface MeetingJoinRedisParams {
   timezone: string;
   botId?: string;
   eventId?: string;
-  provider: 'google' | 'microsoft' | 'zoom';  // Required for Redis
+  provider: 'google' | 'microsoft' | 'zoom' | 'telemost';  // Required for Redis
 }
 ```
 
@@ -243,7 +259,7 @@ interface MeetingJoinRedisParams {
 
 **Using RPUSH (Recommended):**
 ```bash
-# Connect to Redis and add a message to the queue
+# Connect to Redis and add a message to queue
 redis-cli RPUSH jobs:meetbot:list '{
   "url": "https://meet.google.com/abc-defg-hij",
   "name": "Meeting Notetaker",
@@ -252,6 +268,20 @@ redis-cli RPUSH jobs:meetbot:list '{
   "userId": "user123",
   "botId": "UUID",
   "provider": "google",
+  "bearerToken": "your-auth-token"
+}'
+```
+
+**Example for Yandex.Telemost:**
+```bash
+redis-cli RPUSH jobs:meetbot:list '{
+  "url": "https://telemost.yandex.ru/j/123456789",
+  "name": "Meeting Notetaker",
+  "teamId": "team123",
+  "timezone": "UTC",
+  "userId": "user123",
+  "botId": "UUID",
+  "provider": "telemost",
   "bearerToken": "your-auth-token"
 }'
 ```
@@ -282,6 +312,22 @@ const message = {
 await redis.rpush('jobs:meetbot:list', JSON.stringify(message));
 ```
 
+**Example for Yandex.Telemost:**
+```javascript
+const telemostMessage = {
+  url: "https://telemost.yandex.ru/j/123456789",
+  name: "Meeting Notetaker",
+  teamId: "team123",
+  timezone: "UTC",
+  userId: "user123",
+  botId: "UUID",
+  provider: "telemost",
+  bearerToken: "your-auth-token"
+};
+
+await redis.rpush('jobs:meetbot:list', JSON.stringify(telemostMessage));
+```
+
 **Python (redis-py):**
 ```python
 import redis
@@ -301,6 +347,22 @@ message = {
 }
 
 r.rpush('jobs:meetbot:list', json.dumps(message))
+```
+
+**Example for Yandex.Telemost:**
+```python
+telemost_message = {
+    "url": "https://telemost.yandex.ru/j/123456789",
+    "name": "Meeting Notetaker",
+    "teamId": "team123",
+    "timezone": "UTC",
+    "userId": "user123",
+    "botId": "UUID",
+    "provider": "telemost",
+    "bearerToken": "your-auth-token"
+}
+
+r.rpush('jobs:meetbot:list', json.dumps(telemost_message))
 ```
 
 #### Queue Processing
@@ -583,6 +645,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Google Meet support
 - ✅ Microsoft Teams support  
 - ✅ Zoom support
+- ✅ Yandex.Telemost support
 - ✅ Recording functionality
 - ✅ Docker deployment
 - ✅ REST API support
