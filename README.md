@@ -49,7 +49,10 @@ An open-source automation bot for joining and recording video meetings across mu
 
 4. **Run with Docker (Recommended)**
    ```bash
-   npm run dev
+    meeting-bot-start   # Запустить
+    meeting-bot-stop    # Остановить
+    meeting-bot-logs    # Просмотр логов
+    meeting-bot-status  # Статус
    ```
 
    Or run locally:
