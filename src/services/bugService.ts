@@ -32,15 +32,24 @@ export const uploadDebugImage = async (
   opts?: UploadOption
 ) => {
   try {
+    // Check if debug image upload is disabled via environment variable
+    if (process.env.ENABLE_DEBUG_IMAGE_UPLOAD === 'false') {
+      logger.info('Debug image upload is disabled via ENABLE_DEBUG_IMAGE_UPLOAD');
+      return;
+    }
+
     if (NODE_ENV === 'development') {
       // TODO add disk based file saving
       return;
     }
-    logger.info('Begin upload Debug Image', userId);
-    if (!config.miscStorageBucket) {
-      logger.error('Developer TODO: Add .env value for GCP_MISC_BUCKET', userId);
+
+    // Check if GCP credentials are configured
+    if (!config.miscStorageBucket || !config.region) {
+      logger.info('GCP credentials not configured, skipping debug image upload');
       return;
     }
+
+    logger.info('Begin upload Debug Image', userId);
     const bot = botId ?? 'bot';
     const now = opts?.skipTimestamp ? '' : `-${new Date().toISOString()}`;
     const qualifiedFile = `${config.miscStorageFolder}/${userId}/${bot}/${fileName}${now}.png`;

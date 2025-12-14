@@ -28,6 +28,16 @@ export const patchBotStatus = async ({
     });
     return response.data.success;
   } catch(e: any) {
+    // Если сервис недоступен - это не критичная ошибка
+    if (e?.code === 'ECONNREFUSED' || e?.message?.includes('ECONNREFUSED') || e?.message?.includes('connect')) {
+      logger.warn('Auth service unavailable, skipping status update', {
+        error: e?.message,
+        requestData: { eventId, botId, provider, status }
+      });
+      return false; // Не критичная ошибка, не прерываем работу
+    }
+    
+    // Для других ошибок логируем как обычно
     logger.error('Can\'t update the bot status', {
       error: e?.message || String(e),
       status: e?.response?.status,
@@ -74,6 +84,16 @@ export const addBotLog = async ({
     });
     return response.data.success;
   } catch(e: any) {
+    // Если сервис недоступен - это не критичная ошибка
+    if (e?.code === 'ECONNREFUSED' || e?.message?.includes('ECONNREFUSED') || e?.message?.includes('connect')) {
+      logger.warn('Auth service unavailable, skipping bot log', {
+        error: e?.message,
+        requestData: { eventId, botId, provider, level, message, category, subCategory }
+      });
+      return false; // Не критичная ошибка, не прерываем работу
+    }
+    
+    // Для других ошибок логируем как обычно
     logger.error('Can\'t add the bot log', {
       error: e?.message || String(e),
       status: e?.response?.status,

@@ -136,18 +136,52 @@ export class TelemostBot extends MeetBotBase {
     // Wait for name input field
     this._logger.info('Waiting for name input field...');
     try {
-      await this.page.waitForSelector('input[type="text"]', { timeout: 30000 });
-      this._logger.info('Found name input field');
-    } catch (error) {
-      this._logger.error('Could not find name input field', error);
-      await uploadDebugImage(await this.page.screenshot({ type: 'png', fullPage: true }), 'name-input-field', params.userId, this._logger, params.botId);
-      throw new Error('Could not find name input field on Telemost page');
-    }
+      const nameInputSelectors = [
+        'input[data-testid="orb-textinput-input"]', // Самый надежный селектор
+        '[data-testid="orb-textinput"] input[type="text"]', // Через родительский элемент
+        'input.Orb-Textinput-input', // По классу
+        'input[type="text"][class*="Orb-Textinput"]', // Комбинация
+        'input[type="text"]', // Fallback
+      ];
 
-    // Fill in the name
-    this._logger.info('Filling name input field...');
-    await this.page.fill('input[type="text"]', name ? name : 'ScreenApp Notetaker');
-    await this.page.waitForTimeout(2000);
+      let inputFound = false;
+      let foundSelector = '';
+      
+      for (const selector of nameInputSelectors) {
+        try {
+          const input = await this.page.locator(selector).first();
+          if (await input.isVisible({ timeout: 10000 })) {
+            this._logger.info(`Found name input field with selector: ${selector}`);
+            foundSelector = selector;
+            inputFound = true;
+            break;
+          }
+        } catch (err) {
+          this._logger.debug(`Name input selector not found: ${selector}`);
+          continue;
+        }
+      }
+
+      if (!inputFound) {
+        this._logger.error('Could not find name input field with any selector');
+        await uploadDebugImage(await this.page.screenshot({ type: 'png', fullPage: true }), 'name-input-field', params.userId, this._logger, params.botId);
+        throw new Error('Could not find name input field on Telemost page');
+      }
+
+      // Clear existing value and fill in the name
+      this._logger.info(`Filling name input field with selector: ${foundSelector}`);
+      await this.page.fill(foundSelector, ''); // Clear "Гость" value
+      await this.page.fill(foundSelector, name ? name : 'ScreenApp Notetaker');
+      await this.page.waitForTimeout(1000);
+      
+      // Verify the value was set
+      const inputValue = await this.page.inputValue(foundSelector);
+      this._logger.info(`Name input field value set to: ${inputValue}`);
+    } catch (error) {
+      this._logger.error('Error finding or filling name input field', error);
+      await uploadDebugImage(await this.page.screenshot({ type: 'png', fullPage: true }), 'name-input-field-error', params.userId, this._logger, params.botId);
+      throw error;
+    }
 
     // Handle device permissions
     this._logger.info('Handling device permissions...');
@@ -181,10 +215,13 @@ export class TelemostBot extends MeetBotBase {
     this._logger.info('Looking for join button...');
     try {
       const joinButtonSelectors = [
-        'button:has-text("Присоединиться")',
-        'button:has-text("Join")',
-        'button:has-text("Войти")',
-        'button[data-testid="join-button"]',
+        'button[data-test-id="enter-conference-button"]', // Самый надежный
+        'button.joinMeetingButton_M38VH', // По классу
+        'button:has-text("Подключиться")', // По тексту
+        'button:has-text("Join")', // Английский вариант
+        'button[class*="joinMeetingButton"]', // Частичное совпадение класса
+        'button:has-text("Присоединиться")', // Альтернативный текст
+        'button:has-text("Войти")', // Еще один вариант
       ];
 
       let buttonClicked = false;
@@ -196,10 +233,11 @@ export class TelemostBot extends MeetBotBase {
             await button.click({ timeout: 5000 });
             buttonClicked = true;
             this._logger.info('Successfully clicked join button');
+            await this.page.waitForTimeout(2000);
             break;
           }
         } catch (err) {
-          this._logger.info(`Selector not found: ${selector}`);
+          this._logger.debug(`Join button selector not found: ${selector}`);
           continue;
         }
       }
