@@ -53,7 +53,7 @@ export const addBotLog = async ({
     eventId?: string,
     token: string,
     botId?: string,
-    provider: 'google' | 'microsoft' | 'zoom',
+    provider: 'google' | 'microsoft' | 'zoom' | 'telemost',
     level: 'info' | 'error',
     message: string,
     category: LogCategory,
