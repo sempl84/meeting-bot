@@ -60,6 +60,27 @@ An open-source automation bot for joining and recording video meetings across mu
    npm start
    ```
 
+5. **Настройка автозапуска Docker**
+   ```bash
+    # Включить автозапуск Docker
+    sudo systemctl enable docker
+    sudo systemctl start docker
+
+    # Проверить статус
+    sudo systemctl status docker
+   ```
+   Если Docker настроен на автозапуск и контейнеры имеют restart: unless-stopped, они должны запуститься автоматически. Проверьте:
+   ```bash
+   docker compose -f docker-compose.production.yml ps
+   ```
+
+6. **Ручной запуск (если не запустились автоматически)**
+   ```bash
+    # Если контейнеры не запустились, выполните:
+    cd /home/telebot/meeting-bot
+    docker compose -f docker-compose.production.yml up -d
+   ```
+
 The server will start on `http://localhost:3000`
 
 ## 📖 Usage
